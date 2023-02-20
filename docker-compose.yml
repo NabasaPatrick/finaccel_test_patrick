@@ -1,0 +1,25 @@
+version: '3.8'
+
+services:
+  db:
+    image: postgres:alpine
+    restart: unless-stopped
+    volumes:
+      - db_data:/var/lib/postgresql/data
+    ports:
+      - 5432:5432
+    environment:
+      - POSTGRES_DB=finaccel_test_patrick
+      - POSTGRES_HOST_AUTH_METHOD=trust
+  server:
+    build: .
+    command: bash -c "alembic upgrade head && uvicorn src.main:app --host 0.0.0.0 --port 8090 --reload"
+    volumes:
+      - .:/code
+    ports:
+      - "8090:8090"
+    depends_on:
+      - db
+
+volumes:
+  db_data:
